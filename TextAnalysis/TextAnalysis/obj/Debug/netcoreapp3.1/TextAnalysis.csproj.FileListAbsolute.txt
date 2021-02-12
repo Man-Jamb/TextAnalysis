@@ -1,0 +1,13 @@
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.exe
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.deps.json
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.runtimeconfig.json
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.runtimeconfig.dev.json
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.dll
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\bin\Debug\netcoreapp3.1\TextAnalysis.pdb
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.csprojAssemblyReference.cache
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.AssemblyInfoInputs.cache
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.AssemblyInfo.cs
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.csproj.CoreCompileInputs.cache
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.dll
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.pdb
+C:\Users\Родион\Desktop\тестовое задание\Crossinform\TextAnalysis\TextAnalysis\obj\Debug\netcoreapp3.1\TextAnalysis.genruntimeconfig.cache
