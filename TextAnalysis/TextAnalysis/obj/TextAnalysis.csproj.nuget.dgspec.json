@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Родион\\Desktop\\тестовое задание\\Crossinform\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj": {}
+    "E:\\github\\2\\TextAnalysis\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Родион\\Desktop\\тестовое задание\\Crossinform\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj": {
+    "E:\\github\\2\\TextAnalysis\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Родион\\Desktop\\тестовое задание\\Crossinform\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj",
+        "projectUniqueName": "E:\\github\\2\\TextAnalysis\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj",
         "projectName": "TextAnalysis",
-        "projectPath": "C:\\Users\\Родион\\Desktop\\тестовое задание\\Crossinform\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj",
+        "projectPath": "E:\\github\\2\\TextAnalysis\\TextAnalysis\\TextAnalysis\\TextAnalysis.csproj",
         "packagesPath": "C:\\Users\\Родион\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Родион\\Desktop\\тестовое задание\\Crossinform\\TextAnalysis\\TextAnalysis\\obj\\",
+        "outputPath": "E:\\github\\2\\TextAnalysis\\TextAnalysis\\TextAnalysis\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Родион\\AppData\\Roaming\\NuGet\\NuGet.Config",

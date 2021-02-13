@@ -3,163 +3,21 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace TextAnalysis
 {
-    //реализация АВЛ дерева
-    public class Node
-    {
-        public string key;          //ключ элемента дерева, в нашем случае найденый триплет
-        public int count;           //количество нахождений данного триплета в тексте
-        byte height;                //высота дерева с корнем в этом узле
-        Node left;                  //ссылка на левый узел
-        Node right;                 //ссылка на правый узел
-        public byte place;          //позиция в списке десяти самых часто встречающихся триплетов (10 если не входит в этот список)
-
-        //конструктор устанавливает ключ и количество нахождений (при первичной обработке текста количество задаётся равным 1)
-        public Node(string k, int c)
-        {
-            key = k;
-            height = 1;
-            count = c;
-            place = 10;
-        }
-
-        //перегрузка оператора сравнения для работы с null
-        public static bool operator >(Node n1, Node n2)
-        {
-            int count1 = n1?.count ?? 0;
-            int count2 = n2?.count ?? 0;
-            return count1 > count2;
-        }
-
-        //перегрузка оператора сравнения для работы с null
-        public static bool operator <(Node n1, Node n2)
-        {
-            int count1 = n1?.count ?? 0;
-            int count2 = n2?.count ?? 0;
-            return count1 < count2;
-        }
-
-        //возвращает высоту узла, возвращает 0 если узла не существует
-        static byte Height(Node node)
-        {
-            return node?.height ?? 0;
-        }
-
-        //вычисляет разницу высот правого и левого поддерева
-        static int BalanceFacrtor(Node node)
-        {
-            return (Height(node.right) - Height(node.left));
-        }
-
-        //выставляет корректное значение высоты, при условии что значения высот левого и правого поддеревьев коректны
-        static void FixHeight(Node node)
-        {
-            byte hl = Height(node.left);
-            byte hr = Height(node.right);
-            node.height = (byte)(hl > hr ? hl + 1 : hr + 1);
-        }
-
-        //поворот вправо
-        static Node RotateRight(Node p)
-        {
-            Node q = p.left;
-            p.left = q.right;
-            q.right = p;
-            FixHeight(p);
-            FixHeight(q);
-            return q;
-        }
-
-        //поворот влево
-        static Node RotateLeft(Node q)
-        {
-            Node p = q.right;
-            q.right = p.left;
-            p.left = q;
-            FixHeight(q);
-            FixHeight(p);
-            return p;
-        }
-
-        //балансировка узла при перевесе высоты одного из поддеревьев на 2
-        static Node Balance(Node node)
-        {
-            FixHeight(node);
-            if (BalanceFacrtor(node) == 2)
-            {
-                if (BalanceFacrtor(node.right) < 0)
-                    node.right = RotateRight(node.right);
-                return RotateLeft(node);
-            }
-            if (BalanceFacrtor(node) == -2)
-            {
-                if (BalanceFacrtor(node.left) > 0)
-                    node.left = RotateLeft(node.left);
-                return RotateRight(node);
-            }
-            return node;
-        }
-
-        //добавление нового триплета в дерево, при его нахождении вместо добавления увеличивает количество встреч этого элемента
-        public static Node Insert(Node node, string k, int c = 1)
-        {
-            if (node == null) return new Node(k, c);
-            if (string.Compare(k, node.key) == 0)
-            {
-                node.count += c;
-                return node;
-            }
-            else if (string.Compare(k, node.key) < 0)
-                node.left = Insert(node.left, k, c);
-            else
-                node.right = Insert(node.right, k, c);
-            return Balance(node);
-        }
-
-        //получение узла по ключу, если узел не найден возвращается null
-        public static Node GetByKey(Node node, string k)
-        {
-            if (node == null) return null;
-            if (string.Compare(k, node.key) == 0)
-            {
-                return node;
-            }
-            else if (string.Compare(k, node.key) < 0)
-                return GetByKey(node.left, k);
-            else
-                return GetByKey(node.right, k);
-        }
-
-        //завис всех узлов в список
-        public static void GetAll(Node node, List<Node> list)
-        {
-            if (node != null)
-            {
-                if (node.left != null)
-                {
-                    GetAll(node.left, list);
-                }
-                if (node.right != null)
-                {
-                    GetAll(node.right, list);
-                }
-                list.Add(node);
-            }
-        }
-    }
-
+    
     //обработка текста из файла по полученному пути заданным количеством потоков
     public class TextAnalis
     {
-        Node baseNode;                                          //корень дерево содержащего все найденные триплеты и количества из встреч
-        Node[] topTen = new Node[10];                           //10 самый часто встречающихся триплетов
-        int threadNumber;                                       //количество потоков обработки текста (может быть уменьшено если текст малого размера)
-        int readyThread = 0;                                    //количество потоков завершивших работу
-        EventWaitHandle handle = new AutoResetEvent(false);     //дескриптор ожидания завершения работы всех потоков
-        Node[] nodes;                                           //корни деревьев каждого потока
-        bool stopThreads = false;                               //принудительное завершение потоков
+        ConcurrentDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();     //потокобезопасный словарь для хранения найденных в тексте триплетов
+        int threadNumber;                                                                           //количество потоков обработки текста (может быть уменьшено если текст малого размера)
+        int readyThread = 0;                                                                        //количество потоков завершивших работу
+        EventWaitHandle handle = new AutoResetEvent(false);                                         //дескриптор ожидания завершения работы всех потоков
+        bool stopThreads = false;                                                                   //принудительное завершение потоков
+        string[] topTen = new string[10];                                                           //массив содержащий 10 самых часто встречающихся триплетов
+        int[] topTenCounts = new int[10];                                                           //массив содержащий количество нахождений десяти самых часто встречающихся триплетов
 
         public TextAnalis(string path, int numberOfThreads)
         {
@@ -223,18 +81,11 @@ namespace TextAnalysis
                 texts[threadNumber - 1] = text.Substring(startMarker);
             }
 
-            //инициализируем массив деревьев согласно полученному числу потоков
-            nodes = new Node[threadNumber];
-
             //передаём потокам фрагменты текста и запускаем их
             for (int i = 0; i < threadNumber; i++)
             {
-                List<object> obj = new List<object>();
-                obj.Add(texts[i]);
-                obj.Add(i);
-
                 Thread thread = new Thread(Analis);
-                thread.Start(obj);
+                thread.Start(texts[i]);
             }
 
             //запускаем поток проверки нажатия клавиши
@@ -244,28 +95,24 @@ namespace TextAnalysis
             //ждём окончания работы всех потоков обработки, или нажатия клавиши
             handle.WaitOne();
 
-            //объеденяем результаты всех потоков анализа текста в одно дерево и находим 10 самых часто встречающихся триплетов
-            for (int i = 0; i < threadNumber; i++)
+            //находим 10 самых часто встречающихся триплетов в тексте
+            foreach (KeyValuePair<string, int> trip in dictionary)
             {
-                List<Node> list = new List<Node>();
-                Node.GetAll(nodes[i], list);                                //получаем массив всех триплетов найдённых iм потоком
-                foreach (Node n in list)
+                for (int i = 10; i > 0; i--)
                 {
-                    baseNode = Node.Insert(baseNode, n.key, n.count);       //добавляем каждый триплет и количество его повторений в общее дерево
-                    Node node = Node.GetByKey(baseNode, n.key);             //находим добавленный элемент в дереве
-                    if (node != null)                                       
+                    if (trip.Value > topTenCounts[i - 1]) 
                     {
-                        //проверяем не занял ли он более высокую позицию по частоте появлений
-                        while ((node.place > 0) && (node > topTen[node.place - 1]))
+                        if (i != 10)
                         {
-                            if (topTen[node.place - 1] != null) topTen[node.place - 1].place++;
-                            if (node.place != 10)
-                            {
-                                topTen[node.place] = topTen[node.place - 1];
-                            }
-                            topTen[node.place - 1] = node;
-                            node.place--;
+                            topTen[i] = topTen[i - 1];
+                            topTenCounts[i] = topTenCounts[i - 1];
                         }
+                        topTen[i - 1] = trip.Key;
+                        topTenCounts[i - 1] = trip.Value;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
@@ -273,10 +120,11 @@ namespace TextAnalysis
             //вывод 10 самых часто встречающихся триплетов и их колличества
             for (int i = 0; i < topTen.Length; i++)
             {
-                Console.Write("{0} - {1}", topTen[i].key, topTen[i].count);
+                Console.Write("{0} - {1}", topTen[i], topTenCounts[i]);
                 if (i != topTen.Length - 1) 
                     Console.Write(", ");
             }
+
             Console.WriteLine();
         }
 
@@ -299,9 +147,7 @@ namespace TextAnalysis
         //функция анализа полученного фрагмента текста
         void Analis(object obj)
         {
-            List<object> list = (List<object>)obj;      //получение данных
-            string str = (string)list[0];               //фрагмент текста для анализа
-            int num = (int)list[1];                     //номер дерева в который ведётся запись найденных триплетов
+            string str = (string)obj;                       //получение фрагмента текста для анализа
 
             for (int i = 0; i < str.Length - 2; i++)
             {
@@ -312,32 +158,28 @@ namespace TextAnalysis
                 }
 
                 //если третий символ предполагаемого триплета - не буква, то пропустить 3 символа
-                if (!(char.IsLetter(str[i + 2])))
+                if (!(char.IsLetter(str[i + 2]))) 
                 {
                     i += 2;
-                    Thread.Sleep(0);
                     continue;
                 }
                 //если второй символ предполагаемого триплета - не буква, то пропустить 2 символа
                 if (!(char.IsLetter(str[i + 1])))
                 {
                     i++;
-                    Thread.Sleep(0);
                     continue;
                 }
                 //если первый символ предполагаемого триплета - не буква, то пропустить символ
                 if (!(char.IsLetter(str[i])))
                 {
-                    Thread.Sleep(0);
                     continue;
                 }
 
-                //если все 3 символа - буквы то добавляем их в дерево
-                nodes[num] = Node.Insert(nodes[num], str.Substring(i, 3));
-
-
-                Thread.Sleep(0);
+                //если все 3 символа - буквы то добавляем их в словарь
+                dictionary.AddOrUpdate(str.Substring(i, 3), 1, (id, count) => count + 1);
             }
+
+
             //увеличиваем счётчик завершённых потоков
             readyThread++;
             //если это последний поток, то сигнализируем, что все потоки завершили работу
@@ -359,8 +201,9 @@ namespace TextAnalysis
             }
             else
             {
-                Console.Write("Укажите путе к текстовому файлу: ");
-                path = Console.ReadLine();
+                path = @"C:\Users\Родион\Desktop\тестовое задание\Crossinform\txt3.txt";
+                //Console.Write("Укажите путе к текстовому файлу: ");
+                //path = Console.ReadLine();
             }
             
             Stopwatch watch = new Stopwatch();
